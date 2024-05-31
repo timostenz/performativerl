@@ -1,0 +1,17 @@
+# Ignore limiting_envs directory
+/limiting_envs/*.json
+
+# Ignore data directory
+/data/*.json
+
+# Ignore figures directory
+/figures/betas/*
+/figures/etas/*
+/figures/lambdas/*
+/figures/nus/*
+
+#ignore __pycache__
+/src/__pycache__/*
+/src/envs/__pycache__/*
+/src/agents/__pycache__/*
+/src/policies/__pycache__/*
