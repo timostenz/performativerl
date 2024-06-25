@@ -9,6 +9,7 @@
 /figures/etas/*
 /figures/lambdas/*
 /figures/nus/*
+/figures/n_samples/*
 
 #ignore __pycache__
 /src/__pycache__/*
