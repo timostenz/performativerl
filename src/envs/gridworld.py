@@ -336,7 +336,8 @@ class Gridworld():
                 T_tot[s, a, s_pr] += 1
                 R_tot[s, a] += r
                 # update state space coverage
-                state_space_coverage[s] = True  
+                state_space_coverage[s] = True
+                state_space_coverage[s_pr] = True   
 
         # append state space coverage for current iteration
         self.state_space_coverage_iteration.append(np.sum(state_space_coverage)/self.dim)
