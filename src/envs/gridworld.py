@@ -494,18 +494,6 @@ class Gridworld():
 
         return trajectory
     
-    def _get_trajectory_length(self):
-        """
-        Return the trajectory length.
-        """
-        return self.trajectory_length
-
-    def _get_state_space_coverage_trajectory(self):
-        """
-        Return the coverage of the state space for each trajectory.
-        """
-        return self.state_space_coverage_trajectory
-    
     def _get_policy_array(self, agent):
         """
         Given the (initial) agent's policy return the probability array
