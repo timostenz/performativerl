@@ -171,5 +171,6 @@ def execute_performative_prediction(config, eps, num_followers, max_iterations, 
 
     # print trajectory length
     print(env._get_trajectory_length())
+    print(env._get_state_space_coverage_trajectory())
 
     return output

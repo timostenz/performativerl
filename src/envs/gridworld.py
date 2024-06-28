@@ -71,6 +71,7 @@ class Gridworld():
         self.n_sample = n_sample
         self.max_sample_steps = max_sample_steps
         self.trajectory_length = []
+        self.state_space_coverage_trajectory = []
         # set random generator (for trajectory sampling)
         self.rng = np.random.default_rng(seed)
         
@@ -462,8 +463,12 @@ class Gridworld():
         # trajectory quartets (state, action, next state, reward)
         trajectory = []
         n_steps = 0
+        # Array to track visited states
+        visited_states = np.zeros(self.dim, dtype=bool)
         # initial state
         s = rng.choice(np.arange(self.dim), p=rho)
+        # Track states visited
+        visited_states[s] = True
         while not self.is_terminal(s) and n_steps < self.max_sample_steps:
             # actions
             actions = {}
@@ -478,10 +483,14 @@ class Gridworld():
             trajectory.append((s, a, s_pr, r[agent.id]))
             # prepare for next time-step
             s = s_pr
+            # Track states visited
+            visited_states[s] = True
             n_steps += 1 
 
         # save the trajectory length
         self.trajectory_length.append(n_steps)
+        # save fraction of unique states visited
+        self.state_space_coverage_trajectory.append(np.sum(visited_states)/self.dim)
 
         return trajectory
     
@@ -490,6 +499,12 @@ class Gridworld():
         Return the trajectory length.
         """
         return self.trajectory_length
+
+    def _get_state_space_coverage_trajectory(self):
+        """
+        Return the coverage of the state space for each trajectory.
+        """
+        return self.state_space_coverage_trajectory
     
     def _get_policy_array(self, agent):
         """
