@@ -169,8 +169,9 @@ def execute_performative_prediction(config, eps, num_followers, max_iterations, 
     with open(f'limiting_envs/{config_name}.json', 'w') as f:
         json.dump(vis, f, indent=4)
 
-    # print trajectory length and state space coverage per trajectory
+    # print trajectory length, state space coverage per trajectory and state space coverage per iteration
     print(env.trajectory_length)
     print(env.state_space_coverage_trajectory)
+    print(env.state_space_coverage_iteration)
 
     return output

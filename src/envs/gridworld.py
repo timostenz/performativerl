@@ -72,6 +72,7 @@ class Gridworld():
         self.max_sample_steps = max_sample_steps
         self.trajectory_length = []
         self.state_space_coverage_trajectory = []
+        self.state_space_coverage_iteration = []
         # set random generator (for trajectory sampling)
         self.rng = np.random.default_rng(seed)
         
@@ -321,8 +322,10 @@ class Gridworld():
         # total values
         T_tot = np.zeros(shape=(self.dim, len(agent.actions), self.dim), dtype='float64')
         R_tot = np.zeros(shape=(self.dim, len(agent.actions)), dtype='float64')
-        # visitattion count
+        # visitation count
         V = np.zeros(shape=(self.dim, len(agent.actions)), dtype='int')
+        # state space coverage for all n_sample
+        state_space_coverage = np.zeros(self.dim, dtype=bool)
         # compute empirical data
         for _ in range(n_sample):
             trajectory = self.sample_trajectory()
@@ -331,7 +334,12 @@ class Gridworld():
                 V[s, a] += 1
                 # update total values
                 T_tot[s, a, s_pr] += 1
-                R_tot[s, a] += r    
+                R_tot[s, a] += r
+                # update state space coverage
+                state_space_coverage[s] = True  
+
+        # append state space coverage for current iteration
+        self.state_space_coverage_iteration.append(np.sum(state_space_coverage)/self.dim)
 
         # approximated values
         T_hat = np.zeros(shape=(self.dim, len(agent.actions), self.dim), dtype='float64')
