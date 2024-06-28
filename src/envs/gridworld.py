@@ -70,6 +70,7 @@ class Gridworld():
         self.sampling = sampling
         self.n_sample = n_sample
         self.max_sample_steps = max_sample_steps
+        self.trajectory_length = []
         # set random generator (for trajectory sampling)
         self.rng = np.random.default_rng(seed)
         
@@ -479,7 +480,16 @@ class Gridworld():
             s = s_pr
             n_steps += 1 
 
+        # save the trajectory length
+        self.trajectory_length.append(n_steps)
+
         return trajectory
+    
+    def _get_trajectory_length(self):
+        """
+        Return the trajectory length.
+        """
+        return self.trajectory_length
     
     def _get_policy_array(self, agent):
         """

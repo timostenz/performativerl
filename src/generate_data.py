@@ -169,4 +169,7 @@ def execute_performative_prediction(config, eps, num_followers, max_iterations, 
     with open(f'limiting_envs/{config_name}.json', 'w') as f:
         json.dump(vis, f, indent=4)
 
+    # print trajectory length
+    print(env._get_trajectory_length())
+
     return output
