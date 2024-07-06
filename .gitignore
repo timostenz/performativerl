@@ -10,6 +10,7 @@
 /figures/lambdas/*
 /figures/nus/*
 /figures/n_samples/*
+/figures/additional_diagnostics/*
 
 #ignore __pycache__
 /src/__pycache__/*

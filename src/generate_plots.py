@@ -406,6 +406,56 @@ def generate_plots(params):
         plt.close(legend_fig)
         plt.close(fig)
 
+        # plot trajectory lengths
+        if not os.path.exists(f'figures/additional_diagnostics'):
+            os.mkdir(f'figures/additional_diagnostics')
+        trajectory_fig, trajectory_ax = plt.subplots()
+        for d in lst:
+            n_sample = d['n_sample']
+            plt.hist(d['trajectory_length'], bins = 100, alpha = 0.5, label=f'm={n_sample}')
+
+        plt.xlabel('Trajectory length', fontsize=30)
+        plt.ylabel('Count', fontsize=30)
+        plt.tick_params(labelsize=20)
+        plt.tight_layout()
+        axes_trajectory = plt.gca()
+        axes_trajectory.tick_params(bottom=True, top=False, left=True, right=False)
+        axes_trajectory.spines['bottom'].set_color('0')
+        axes_trajectory.spines['top'].set_color('0')
+        axes_trajectory.spines['right'].set_color('0')
+        axes_trajectory.spines['left'].set_color('0')
+        axes_trajectory.set_facecolor('w')
+
+        trajectory_fig.savefig(f"figures/additional_diagnostics/trajectory_length.pdf", bbox_inches = 'tight')
+
+        # legend
+        trajectory_legend = plt.legend(
+                ncol=3, fancybox=True, facecolor="white",
+                shadow=True, fontsize=20
+            )
+        trajectory_fig.canvas.draw()
+        trajectory_legend_bbox = trajectory_legend.get_tightbbox(trajectory_fig.canvas.get_renderer())
+        trajectory_legend_bbox = trajectory_legend_bbox.transformed(trajectory_fig.dpi_scale_trans.inverted())
+        trajectory_legend_fig, trajectory_legend_ax = plt.subplots(figsize=(trajectory_legend_bbox.width, trajectory_legend_bbox.height))
+        trajectory_legend_squared = trajectory_legend_ax.legend(
+            *ax.get_legend_handles_labels(), 
+            bbox_to_anchor=(0, 0, 1, 1),
+            bbox_transform=trajectory_legend_fig.transFigure,
+            frameon=True,
+            facecolor="white",
+            fancybox=True,
+            shadow=True,
+            ncol=3,
+            fontsize=20,
+        )
+        trajectory_legend_ax.axis('off')
+        trajectory_legend_fig.savefig("figures/additional_diagnostics/trajectory_length_legend.pdf",  
+                            bbox_inches='tight',
+                            bbox_extra_artists=[trajectory_legend_squared]
+        )
+        plt.close(trajectory_legend_fig)
+        plt.close(trajectory_fig)
+
         # suboptimality gap
         if gradient:
             fig, ax = plt.subplots()
