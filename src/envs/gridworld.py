@@ -70,6 +70,10 @@ class Gridworld():
         self.sampling = sampling
         self.n_sample = n_sample
         self.max_sample_steps = max_sample_steps
+        self.trajectory_length = []
+        self.state_space_coverage_trajectory = []
+        self.state_space_coverage_iteration = []
+        self.state_space_coverage_iteration_grid = []
         # set random generator (for trajectory sampling)
         self.rng = np.random.default_rng(seed)
         
@@ -319,8 +323,10 @@ class Gridworld():
         # total values
         T_tot = np.zeros(shape=(self.dim, len(agent.actions), self.dim), dtype='float64')
         R_tot = np.zeros(shape=(self.dim, len(agent.actions)), dtype='float64')
-        # visitattion count
+        # visitation count
         V = np.zeros(shape=(self.dim, len(agent.actions)), dtype='int')
+        # state space coverage for all n_sample
+        state_space_coverage = np.zeros(self.dim, dtype=bool)
         # compute empirical data
         for _ in range(n_sample):
             trajectory = self.sample_trajectory()
@@ -329,7 +335,15 @@ class Gridworld():
                 V[s, a] += 1
                 # update total values
                 T_tot[s, a, s_pr] += 1
-                R_tot[s, a] += r    
+                R_tot[s, a] += r
+                # update state space coverage
+                state_space_coverage[s] = True
+                state_space_coverage[s_pr] = True   
+
+        # append state space coverage in percent for current iteration
+        self.state_space_coverage_iteration.append(np.sum(state_space_coverage)/self.dim)
+        # append state space as array for current iteration (no percentages!)
+        self.state_space_coverage_iteration_grid.append(state_space_coverage.tolist())
 
         # approximated values
         T_hat = np.zeros(shape=(self.dim, len(agent.actions), self.dim), dtype='float64')
@@ -461,8 +475,12 @@ class Gridworld():
         # trajectory quartets (state, action, next state, reward)
         trajectory = []
         n_steps = 0
+        # Array to track visited states
+        visited_states = np.zeros(self.dim, dtype=bool)
         # initial state
         s = rng.choice(np.arange(self.dim), p=rho)
+        # Track states visited
+        visited_states[s] = True
         while not self.is_terminal(s) and n_steps < self.max_sample_steps:
             # actions
             actions = {}
@@ -477,7 +495,14 @@ class Gridworld():
             trajectory.append((s, a, s_pr, r[agent.id]))
             # prepare for next time-step
             s = s_pr
+            # Track states visited
+            visited_states[s] = True
             n_steps += 1 
+
+        # save the trajectory length
+        self.trajectory_length.append(n_steps)
+        # save fraction of unique states visited
+        self.state_space_coverage_trajectory.append(np.sum(visited_states)/self.dim)
 
         return trajectory
     

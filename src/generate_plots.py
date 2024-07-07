@@ -3,6 +3,7 @@ import numpy as np
 import os
 import json
 from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap, BoundaryNorm
 
 
 def generate_plots(params):
@@ -23,6 +24,7 @@ def generate_plots(params):
     gammas = params['gammas']
     # perormative prediction parameters
     max_iterations = params['max_iterations']
+    iterations_printed = params['iterations_printed']
     flamda = params['flamda']
     lamdas = params['lamdas']
     freg = params['freg']
@@ -405,6 +407,89 @@ def generate_plots(params):
         )
         plt.close(legend_fig)
         plt.close(fig)
+
+        # plot trajectory lengths (ONLY for the first seed)
+        if not os.path.exists(f'figures/additional_diagnostics'):
+            os.mkdir(f'figures/additional_diagnostics')
+        trajectory_fig, trajectory_ax = plt.subplots()
+        for d in lst:
+            n_sample = d['n_sample']
+            plt.hist(d['trajectory_length'], bins = 100, alpha = 0.5, label=f'm={n_sample}')
+
+        plt.xlabel('Trajectory length', fontsize=30)
+        plt.ylabel('Count', fontsize=30)
+        plt.tick_params(labelsize=20)
+        plt.tight_layout()
+        axes_trajectory = plt.gca()
+        axes_trajectory.tick_params(bottom=True, top=False, left=True, right=False)
+        axes_trajectory.spines['bottom'].set_color('0')
+        axes_trajectory.spines['top'].set_color('0')
+        axes_trajectory.spines['right'].set_color('0')
+        axes_trajectory.spines['left'].set_color('0')
+        axes_trajectory.set_facecolor('w')
+
+        trajectory_fig.savefig(f"figures/additional_diagnostics/trajectory_length.pdf", bbox_inches = 'tight')
+
+        # legend
+        trajectory_legend = plt.legend(
+                ncol=3, fancybox=True, facecolor="white",
+                shadow=True, fontsize=20
+            )
+        trajectory_fig.canvas.draw()
+        trajectory_legend_bbox = trajectory_legend.get_tightbbox(trajectory_fig.canvas.get_renderer())
+        trajectory_legend_bbox = trajectory_legend_bbox.transformed(trajectory_fig.dpi_scale_trans.inverted())
+        trajectory_legend_fig, trajectory_legend_ax = plt.subplots(figsize=(trajectory_legend_bbox.width, trajectory_legend_bbox.height))
+        trajectory_legend_squared = trajectory_legend_ax.legend(
+            *ax.get_legend_handles_labels(), 
+            bbox_to_anchor=(0, 0, 1, 1),
+            bbox_transform=trajectory_legend_fig.transFigure,
+            frameon=True,
+            facecolor="white",
+            fancybox=True,
+            shadow=True,
+            ncol=3,
+            fontsize=20,
+        )
+        trajectory_legend_ax.axis('off')
+        trajectory_legend_fig.savefig("figures/additional_diagnostics/trajectory_length_legend.pdf",  
+                            bbox_inches='tight',
+                            bbox_extra_artists=[trajectory_legend_squared]
+        )
+        plt.close(trajectory_legend_fig)
+        plt.close(trajectory_fig)
+
+        # plot state space coverage per iteration (ONLY for the first seed)
+        if not os.path.exists(f'figures/additional_diagnostics'):
+            os.mkdir(f'figures/additional_diagnostics')
+        
+        for d in lst:
+            # subplots to display the first 10 iterations
+            sp_fig, sp_ax = plt.subplots(2,5, figsize=(20, 8))
+            n_sample = d['n_sample']
+            # Create a colormap: red for visited (True), white for not visited (False)
+            cmap = ListedColormap(['white', 'red'])
+            bounds = [0, 0.5, 1]
+            norm = BoundaryNorm(bounds, cmap.N)
+            for i in range(0,10):
+                # Reshape the list to an 8x8 numpy array
+                visited_array = np.array(d['state_space_coverage_iteration_grid'][iterations_printed[i]]).reshape((8, 8))
+                # Determine the position of the subplot
+                ax = sp_ax[i // 5, i % 5]
+                ax.imshow(visited_array, cmap=cmap, norm=norm)
+                ax.set_title(f'n_sample:{n_sample}, iteration: {iterations_printed[i]}')
+                # Add grid lines
+                ax.set_xticks(np.arange(-0.5, 8, 1), minor=True)
+                ax.set_yticks(np.arange(-0.5, 8, 1), minor=True)
+                ax.grid(which='major', color='black', linestyle='-', linewidth=2)
+                ax.grid(which='minor', color='black', linestyle='-', linewidth=1)
+                
+                # Remove tick labels
+                ax.set_xticklabels([])
+                ax.set_yticklabels([])
+            
+            plt.tight_layout()
+            plt.savefig(f"figures/additional_diagnostics/statespace_coverage_iteration_n_sample={d['n_sample']}.pdf", bbox_inches = 'tight')
+            plt.close(sp_fig)
 
         # suboptimality gap
         if gradient:
