@@ -24,6 +24,7 @@ def generate_plots(params):
     gammas = params['gammas']
     # perormative prediction parameters
     max_iterations = params['max_iterations']
+    iterations_printed = params['iterations_printed']
     flamda = params['flamda']
     lamdas = params['lamdas']
     freg = params['freg']
@@ -471,11 +472,11 @@ def generate_plots(params):
             norm = BoundaryNorm(bounds, cmap.N)
             for i in range(0,10):
                 # Reshape the list to an 8x8 numpy array
-                visited_array = np.array(d['state_space_coverage_iteration_grid'][i]).reshape((8, 8))
+                visited_array = np.array(d['state_space_coverage_iteration_grid'][iterations_printed[i]]).reshape((8, 8))
                 # Determine the position of the subplot
                 ax = sp_ax[i // 5, i % 5]
                 ax.imshow(visited_array, cmap=cmap, norm=norm)
-                ax.set_title(f'n_sample:{n_sample}, iteration: {i}')
+                ax.set_title(f'n_sample:{n_sample}, iteration: {iterations_printed[i]}')
                 # Add grid lines
                 ax.set_xticks(np.arange(-0.5, 8, 1), minor=True)
                 ax.set_yticks(np.arange(-0.5, 8, 1), minor=True)

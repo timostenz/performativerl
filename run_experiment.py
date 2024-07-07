@@ -29,6 +29,8 @@ from src.generate_plots import generate_plots
 @click.option('--num_seeds', default=20, type=int, help='Number of experiment seeds')
 # iterations
 @click.option('--max_iterations', default=1000, type=int, help='Number of Iterations')
+# iterations considered when printing the state space coverage
+@click.option('--iterations_printed', multiple=True, default=[0,2,4,5,6,7,8,9,10,11], type=int, help='Iterations considered when printing the state space coverage')
 # n_jobs
 @click.option('--n_jobs', default=multiprocessing.cpu_count(), type=int, help='Number of jobs')
 # policy gradient
@@ -41,7 +43,7 @@ from src.generate_plots import generate_plots
 @click.option('--n', default=10, type=int, help='Number of rounds N')
 @click.option('--delta', default=.1, type=float, help='Lagrangian parameter delta')
 @click.option('--b', default=10, type=int, help='Lagrangian parameter B')
-def run_experiment(gradient, sampling, eps, fbeta, betas, flamda, lamdas, fgamma, gammas, freg, regs, num_followers, feta, etas, fn_sample, n_samples, num_seeds, max_iterations, n_jobs, policy_gradient, nus, unregularized_obj, lagrangian, n, delta, b):
+def run_experiment(gradient, sampling, eps, fbeta, betas, flamda, lamdas, fgamma, gammas, freg, regs, num_followers, feta, etas, fn_sample, n_samples, num_seeds, max_iterations, iterations_printed, n_jobs, policy_gradient, nus, unregularized_obj, lagrangian, n, delta, b):
 
     print("Begin experiment\n")
 
@@ -64,6 +66,7 @@ def run_experiment(gradient, sampling, eps, fbeta, betas, flamda, lamdas, fgamma
     params['n_samples'] = n_samples
     params['seeds'] = list(range(num_seeds))
     params['max_iterations'] = max_iterations
+    params['iterations_printed'] = iterations_printed
     params['n_jobs'] = n_jobs
     # policy gradient
     params['policy_gradient'] = policy_gradient
