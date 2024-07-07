@@ -73,6 +73,7 @@ class Gridworld():
         self.trajectory_length = []
         self.state_space_coverage_trajectory = []
         self.state_space_coverage_iteration = []
+        self.state_space_coverage_iteration_grid = []
         # set random generator (for trajectory sampling)
         self.rng = np.random.default_rng(seed)
         
@@ -339,8 +340,10 @@ class Gridworld():
                 state_space_coverage[s] = True
                 state_space_coverage[s_pr] = True   
 
-        # append state space coverage for current iteration
+        # append state space coverage in percent for current iteration
         self.state_space_coverage_iteration.append(np.sum(state_space_coverage)/self.dim)
+        # append state space as array for current iteration (no percentages!)
+        self.state_space_coverage_iteration_grid.append(state_space_coverage.tolist())
 
         # approximated values
         T_hat = np.zeros(shape=(self.dim, len(agent.actions), self.dim), dtype='float64')

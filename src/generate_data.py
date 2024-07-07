@@ -122,6 +122,8 @@ def generate_data(params):
             output['d_diff_std'] = list(map(stdev, zip(*d_diffs)))
             # get trajectory length - ONLY for the first seed
             output['trajectory_length'] = tmp_output[0]['trajectory_length']
+            # get state space coverage grid - ONLY for the first seed
+            output['state_space_coverage_iteration_grid'] = tmp_output[0]['state_space_coverage_iteration_grid']
             if gradient:
                 sub_gaps = [tmp_output[seed]['sub_gap'] for seed in seeds]
                 output['sub_gap_mean'] = list(map(mean, zip(*sub_gaps)))
@@ -160,6 +162,7 @@ def execute_performative_prediction(config, eps, num_followers, max_iterations, 
     algorithm.execute()
     output['d_diff'] = algorithm.d_diff
     output['trajectory_length'] = env.trajectory_length
+    output['state_space_coverage_iteration_grid'] = env.state_space_coverage_iteration_grid
     if gradient or policy_gradient or unregularized_obj:
         output['sub_gap'] = algorithm.sub_gap
 
