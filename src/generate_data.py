@@ -179,6 +179,6 @@ def execute_performative_prediction(config, eps, num_followers, max_iterations, 
         json.dump(vis, f, indent=4)
 
     # state space coverage per trajectory
-    print(env.state_space_coverage_trajectory)
+    print(f'State space coverage per trajectory:{env.state_space_coverage_trajectory}')
 
     return output
