@@ -4,6 +4,7 @@ import os
 import json
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
+import seaborn as sns
 
 
 def generate_plots(params):
@@ -458,10 +459,7 @@ def generate_plots(params):
         plt.close(trajectory_legend_fig)
         plt.close(trajectory_fig)
 
-        # plot state space coverage per iteration (ONLY for the first seed)
-        if not os.path.exists(f'figures/additional_diagnostics'):
-            os.mkdir(f'figures/additional_diagnostics')
-        
+        # plot state space coverage per iteration (ONLY for the first seed)        
         for d in lst:
             # subplots to display the first 10 iterations
             sp_fig, sp_ax = plt.subplots(2,5, figsize=(20, 8))
@@ -489,6 +487,23 @@ def generate_plots(params):
             
             plt.tight_layout()
             plt.savefig(f"figures/additional_diagnostics/statespace_coverage_iteration_n_sample={d['n_sample']}.pdf", bbox_inches = 'tight')
+            plt.close(sp_fig)
+
+        # plot state space coverage per iteration (ONLY for the first seed)
+        for d in lst:
+            # subplots to display the first 10 iterations
+            sp_fig, sp_ax = plt.subplots(2,5, figsize=(20, 8))
+            n_sample = d['n_sample']
+            for i in range(0,10):
+                # Reshape the list to an 8x8 numpy array
+                visited_array = np.array(d['state_visitation_counts_iteration'][iterations_printed[i]]).reshape((8, 8))
+                # Determine the position of the subplot
+                ax = sp_ax[i // 5, i % 5]
+                sns.heatmap(visited_array, ax=ax, annot=True, cmap='crest', cbar=True, xticklabels=False, yticklabels=False)
+                ax.set_title(f'n_sample:{n_sample}, iteration: {iterations_printed[i]}')
+            
+            plt.tight_layout()
+            plt.savefig(f"figures/additional_diagnostics/statespace_coverage_heatmap_n_sample={d['n_sample']}.pdf", bbox_inches = 'tight')
             plt.close(sp_fig)
 
         # suboptimality gap

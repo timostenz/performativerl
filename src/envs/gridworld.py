@@ -74,6 +74,7 @@ class Gridworld():
         self.state_space_coverage_trajectory = []
         self.state_space_coverage_iteration = []
         self.state_space_coverage_iteration_grid = []
+        self.state_visitation_counts_iteration = []
         # set random generator (for trajectory sampling)
         self.rng = np.random.default_rng(seed)
         
@@ -327,10 +328,13 @@ class Gridworld():
         V = np.zeros(shape=(self.dim, len(agent.actions)), dtype='int')
         # state space coverage for all n_sample
         state_space_coverage = np.zeros(self.dim, dtype=bool)
+        state_visitation_counts = np.zeros(self.dim, dtype='int')
         # compute empirical data
         for _ in range(n_sample):
             trajectory = self.sample_trajectory()
-            for s, a, s_pr, r in trajectory:
+            trajectory_length = len(trajectory)
+            #for s, a, s_pr, r in trajectory:
+            for step_index, (s, a, s_pr, r) in enumerate(trajectory):
                 # update visitation count
                 V[s, a] += 1
                 # update total values
@@ -338,12 +342,18 @@ class Gridworld():
                 R_tot[s, a] += r
                 # update state space coverage
                 state_space_coverage[s] = True
-                state_space_coverage[s_pr] = True   
+                state_visitation_counts[s] += 1
+                # additionally update for s_pr in the last iteration of the inner loop (include last state of the trajectory)
+                if step_index == trajectory_length - 1:
+                    state_space_coverage[s_pr] = True
+                    state_visitation_counts[s_pr] += 1  
 
         # append state space coverage in percent for current iteration
         self.state_space_coverage_iteration.append(np.sum(state_space_coverage)/self.dim)
         # append state space as array for current iteration (no percentages!)
         self.state_space_coverage_iteration_grid.append(state_space_coverage.tolist())
+        # append visitation count of each state array for current iteration
+        self.state_visitation_counts_iteration.append(state_visitation_counts.tolist())
 
         # approximated values
         T_hat = np.zeros(shape=(self.dim, len(agent.actions), self.dim), dtype='float64')
