@@ -9,6 +9,7 @@ from src.generate_plots import generate_plots
 # experiment modes
 @click.option('--gradient', is_flag=True, help='Flag for repeated gradient ascent method')
 @click.option('--sampling', is_flag=True, help='Flag for finite samples')
+@click.option('--iid', is_flag=True, help='Flag for iid sampling')
 # experiment parameters
 @click.option('--eps', default=.3, type=float, help='Environment parameter epsilon')
 @click.option('--fbeta', default=5, type=float, help='Fixed value for (smoothness) parameter beta')
@@ -30,7 +31,7 @@ from src.generate_plots import generate_plots
 # iterations
 @click.option('--max_iterations', default=1000, type=int, help='Number of Iterations')
 # iterations considered when printing the state space coverage
-@click.option('--iterations_printed', multiple=True, default=[0,2,4,5,6,7,8,9,10,11], type=int, help='Iterations considered when printing the state space coverage')
+@click.option('--iterations_printed', multiple=True, default=[0,1,2,3,4,5,6,7,8,9], type=int, help='Iterations considered when printing the state space coverage')
 # n_jobs
 @click.option('--n_jobs', default=multiprocessing.cpu_count(), type=int, help='Number of jobs')
 # policy gradient
@@ -43,13 +44,14 @@ from src.generate_plots import generate_plots
 @click.option('--n', default=10, type=int, help='Number of rounds N')
 @click.option('--delta', default=.1, type=float, help='Lagrangian parameter delta')
 @click.option('--b', default=10, type=int, help='Lagrangian parameter B')
-def run_experiment(gradient, sampling, eps, fbeta, betas, flamda, lamdas, fgamma, gammas, freg, regs, num_followers, feta, etas, fn_sample, n_samples, num_seeds, max_iterations, iterations_printed, n_jobs, policy_gradient, nus, unregularized_obj, lagrangian, n, delta, b):
+def run_experiment(gradient, sampling, iid, eps, fbeta, betas, flamda, lamdas, fgamma, gammas, freg, regs, num_followers, feta, etas, fn_sample, n_samples, num_seeds, max_iterations, iterations_printed, n_jobs, policy_gradient, nus, unregularized_obj, lagrangian, n, delta, b):
 
     print("Begin experiment\n")
 
     params = {}
     params['gradient'] = gradient
     params['sampling'] = sampling
+    params['iid'] = iid
     params['eps'] = eps
     params['fbeta'] = fbeta
     params['betas'] = betas
