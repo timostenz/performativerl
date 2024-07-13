@@ -536,11 +536,14 @@ class Gridworld():
         """
         agent = self.agents[1]
         fixed_agent = self.agents[2]
-        #rho = self.rho
         rng = self.rng
+
+        rho = np.zeros(self.dim, dtype='float64')
+        for s in range(rho.shape[0]-1):
+            rho[s] = 1 / (rho.shape[0]-1)
         
-        # initial state (uniform over all possible states)
-        s = rng.choice(np.arange(self.dim))
+        # initial state (uniform over all possible states except the terminal state)
+        s = rng.choice(np.arange(self.dim), p=rho)
         # actions
         actions = {}
         actions[agent.id] = agent.take_action(s, rng)
