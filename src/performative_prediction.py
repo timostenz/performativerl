@@ -7,7 +7,7 @@ from src.policies.policies import *
 
 class Performative_Prediction():
 
-    def __init__(self, env: Gridworld, max_iterations, lamda, reg, gradient, eta, sampling, iid, n_sample, policy_gradient, nu, unregularized_obj, lagrangian, N, delta, B):
+    def __init__(self, env: Gridworld, max_iterations, lamda, reg, gradient, eta, sampling, iid, occupancy_iid, n_sample, policy_gradient, nu, unregularized_obj, lagrangian, N, delta, B):
         
         self.env = env
         self.max_iterations = max_iterations
@@ -17,6 +17,7 @@ class Performative_Prediction():
         self.eta = eta
         self.sampling = sampling
         self.iid = iid
+        self.occupancy_iid = occupancy_iid
         self.n_sample = n_sample
         self.policy_gradient = policy_gradient
         self.nu = nu
@@ -48,10 +49,42 @@ class Performative_Prediction():
         """
         env = self.env
 
-        self.R, self.T = env._get_RT()
-        # initial state action distribution
-        d_first = env._get_d(self.T, self.agents[1])
-        self.d_last = d_first
+        if self.occupancy_iid:
+            """
+            When sampling from the occupancy measure we we have to come up with an initial occupancy measure
+            because get_RT itself depends on an occupancy measure in that case
+
+            Alternatively we can initialize the transition probs as 0 or obtain them from trajectories
+            """
+            ## initialize r and t as zeros
+            #self.T = np.zeros(shape=(env.dim, len(env.agents[1].actions), env.dim), dtype='float64')
+            #self.R = np.zeros(shape=(env.dim, len(env.agents[1].actions)), dtype='float64')
+            ## initial state action distribution
+            #d_first = env._get_d(self.T, self.agents[1])
+            #self.d_last = d_first
+
+            ## initialize first r and t from trajectories
+            #env.occupancy_iid = False
+            #self.R, self.T = env._get_RT()
+            #env.occupancy_iid = True
+            ## initial state action distribution
+            #d_first = env._get_d(self.T, self.agents[1])
+            #self.d_last = d_first
+
+            ## set initial occupancy measure as uniform over initial states and the respective actions
+            d_first = np.zeros((env.dim, len(self.agents[1].actions)))
+            for i in range(d_first.shape[0]):
+                if i < env.grid.shape[0] or i % env.grid.shape[0] == 0:
+                    d_first[i,:] = (1/len(env.initial_states))/d_first.shape[1]
+            self.d_last = d_first
+            # update the d_last in the gridworld file
+            env._get_d_last(self.d_last)
+            self.R, self.T = env._get_RT()
+        else:
+            self.R, self.T = env._get_RT()
+            # initial state action distribution
+            d_first = env._get_d(self.T, self.agents[1])
+            self.d_last = d_first
         # initial policy array (needed for policy gradient)
         pi_first = env._get_policy_array(self.agents[1])
         self.pi_last = pi_first
@@ -107,6 +140,8 @@ class Performative_Prediction():
         # store difference in state-action occupancy measure
         self.d_diff.append(np.linalg.norm(d.value - self.d_last)/np.linalg.norm(self.d_last))
         self.d_last = d.value
+        # pass the last d to the environment to draw samples in --occupancy_iid
+        env._get_d_last(self.d_last)
 
         # compute suboptimality gap
         if self.gradient:
