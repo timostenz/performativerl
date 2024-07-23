@@ -10,7 +10,7 @@ from src.policies.policies import *
 
 class Gridworld():
 
-    def __init__(self, beta, eps, gamma, num_followers, sampling=False, n_sample=500, seed=1, max_sample_steps=100):
+    def __init__(self, beta, eps, gamma, num_followers, sampling=False, iid=False, occupancy_iid=False, n_sample=500, seed=1, max_sample_steps=100):
 
         # grid
         h = -0.5
@@ -68,6 +68,8 @@ class Gridworld():
         self.beta = beta
         # sampling
         self.sampling = sampling
+        self.iid = iid
+        self.occupancy_iid = occupancy_iid
         self.n_sample = n_sample
         self.max_sample_steps = max_sample_steps
         self.trajectory_length = []
@@ -77,6 +79,8 @@ class Gridworld():
         self.state_visitation_counts_iteration = []
         # set random generator (for trajectory sampling)
         self.rng = np.random.default_rng(seed)
+        # occupancy measure from last iteration
+        self.d_last = np.empty((self.dim, len(self.agents[1].actions)))
         
         self.reset()
 
@@ -331,10 +335,11 @@ class Gridworld():
         state_visitation_counts = np.zeros(self.dim, dtype='int')
         # compute empirical data
         for _ in range(n_sample):
-            trajectory = self.sample_trajectory()
-            trajectory_length = len(trajectory)
-            #for s, a, s_pr, r in trajectory:
-            for step_index, (s, a, s_pr, r) in enumerate(trajectory):
+            if self.iid or self.occupancy_iid:
+                if self.iid:
+                    (s, a, s_pr, r) = self.sample_iid()
+                else:
+                    (s, a, s_pr, r) = self.sample_occupancy()
                 # update visitation count
                 V[s, a] += 1
                 # update total values
@@ -343,10 +348,25 @@ class Gridworld():
                 # update state space coverage
                 state_space_coverage[s] = True
                 state_visitation_counts[s] += 1
-                # additionally update for s_pr in the last iteration of the inner loop (include last state of the trajectory)
-                if step_index == trajectory_length - 1:
-                    state_space_coverage[s_pr] = True
-                    state_visitation_counts[s_pr] += 1  
+                state_space_coverage[s_pr] = True
+                state_visitation_counts[s_pr] += 1   
+            else:
+                trajectory = self.sample_trajectory()
+                trajectory_length = len(trajectory)
+                #for s, a, s_pr, r in trajectory:
+                for step_index, (s, a, s_pr, r) in enumerate(trajectory):
+                    # update visitation count
+                    V[s, a] += 1
+                    # update total values
+                    T_tot[s, a, s_pr] += 1
+                    R_tot[s, a] += r
+                    # update state space coverage
+                    state_space_coverage[s] = True
+                    state_visitation_counts[s] += 1
+                    # additionally update for s_pr in the last iteration of the inner loop (include last state of the trajectory)
+                    if step_index == trajectory_length - 1:
+                        state_space_coverage[s_pr] = True
+                        state_visitation_counts[s_pr] += 1 
 
         # append state space coverage in percent for current iteration
         self.state_space_coverage_iteration.append(np.sum(state_space_coverage)/self.dim)
@@ -403,6 +423,13 @@ class Gridworld():
                 break
 
         return d
+    
+    def _get_d_last(self, d_last):
+        """
+        get the last occupancy measure calculated in the performative prediction file
+        """
+        self.d_last = np.asarray(d_last, dtype='float64')
+        return
 
     # utilities
     def is_valid(self, state):
@@ -515,6 +542,65 @@ class Gridworld():
         self.state_space_coverage_trajectory.append(np.sum(visited_states)/self.dim)
 
         return trajectory
+
+    def sample_iid(self):
+        """
+        sample uniformly from the state space except for final state
+        """
+        agent = self.agents[1]
+        fixed_agent = self.agents[2]
+        rng = self.rng
+
+        rho = np.zeros(self.dim, dtype='float64')
+        for s in range(rho.shape[0]-1):
+            rho[s] = 1 / (rho.shape[0]-1)
+        
+        # initial state (uniform over all possible states except the terminal state)
+        s = rng.choice(np.arange(self.dim), p=rho)
+        # actions
+        actions = {}
+        actions[agent.id] = agent.take_action(s, rng)
+        actions[fixed_agent.id] = fixed_agent.take_action(s, rng)
+        a = actions[agent.id]
+        # next state
+        s_pr = self.get_mnext_state(s, actions)
+        # rewards
+        r = self.get_mrewards(s, actions, s_pr)
+
+        return (s, a, s_pr, r[agent.id])
+
+    def sample_occupancy(self):
+        """
+        sample from the occupancy measure
+        """
+        agent = self.agents[1]
+        fixed_agent = self.agents[2]
+        rng = self.rng
+        gamma = self.gamma
+
+        # get occupancy measure from current iteration
+        d_t =  self.d_last
+        #normalize occupancy measure
+        d_t = (1-gamma) * d_t / np.sum((1 - gamma) * d_t)
+
+        # state action pair
+        flattened_d_t = d_t.flatten()
+        state_action_pair = np.random.choice(len(flattened_d_t), p=flattened_d_t)
+        
+        s = state_action_pair // len(agent.actions)
+        action_fixed_agent = state_action_pair % len(agent.actions)
+        
+        # actions
+        actions = {}
+        actions[agent.id] = action_fixed_agent
+        actions[fixed_agent.id] = fixed_agent.take_action(s, rng)
+        a = actions[agent.id]
+        # next state
+        s_pr = self.get_mnext_state(s, actions)
+        # rewards
+        r = self.get_mrewards(s, actions, s_pr)
+
+        return (s, a, s_pr, r[agent.id])
     
     def _get_policy_array(self, agent):
         """
