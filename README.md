@@ -1,3 +1,25 @@
+# Reproducibility study on Performative Learning
+
+This repository contains the code which extends the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
+
+Find the original repository using the following link: [https://github.com/gradanovic/icml2023-performative-rl-paper-code](https://github.com/gradanovic/icml2023-performative-rl-paper-code).
+
+This repository extends the existing code by the following features:
+
+- additional plots show the state space coverage
+
+- additional plots show the trajectory length
+
+- feature which estimates the rewards and transition probabilities using uniform sampling over the state space. (no trajectories)
+```
+python run_experiment.py --sampling --iid
+```
+
+- feature which estimates the rewards and transition probabilities using samples from the ocupancy measure each iteration. (no trajectories)
+```
+python run_experiment.py --sampling --occupancy_iid
+```
+
 # Performative Reinforcement Learning [ICML'23]
 
 This repository contains code for the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
