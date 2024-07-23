@@ -1,4 +1,4 @@
-# Reproducibility study on Performative Learning
+# Reproducibility study on Performative Reinforcement Learning
 
 This repository contains the code which extends the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
 
