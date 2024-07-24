@@ -459,36 +459,6 @@ def generate_plots(params):
         plt.close(trajectory_legend_fig)
         plt.close(trajectory_fig)
 
-        # plot state space coverage per iteration (ONLY for the first seed)        
-        for d in lst:
-            # subplots to display the first 10 iterations
-            sp_fig, sp_ax = plt.subplots(2,5, figsize=(20, 8))
-            n_sample = d['n_sample']
-            # Create a colormap: red for visited (True), white for not visited (False)
-            cmap = ListedColormap(['white', 'red'])
-            bounds = [0, 0.5, 1]
-            norm = BoundaryNorm(bounds, cmap.N)
-            for i in range(0,10):
-                # Reshape the list to an 8x8 numpy array
-                visited_array = np.array(d['state_space_coverage_iteration_grid'][iterations_printed[i]]).reshape((8, 8))
-                # Determine the position of the subplot
-                ax = sp_ax[i // 5, i % 5]
-                ax.imshow(visited_array, cmap=cmap, norm=norm)
-                ax.set_title(f'n_sample:{n_sample}, iteration: {iterations_printed[i]}')
-                # Add grid lines
-                ax.set_xticks(np.arange(-0.5, 8, 1), minor=True)
-                ax.set_yticks(np.arange(-0.5, 8, 1), minor=True)
-                ax.grid(which='major', color='black', linestyle='-', linewidth=2)
-                ax.grid(which='minor', color='black', linestyle='-', linewidth=1)
-                
-                # Remove tick labels
-                ax.set_xticklabels([])
-                ax.set_yticklabels([])
-            
-            plt.tight_layout()
-            plt.savefig(f"figures/additional_diagnostics/statespace_coverage_iteration_n_sample={d['n_sample']}.pdf", bbox_inches = 'tight')
-            plt.close(sp_fig)
-
         # plot state space coverage per iteration (ONLY for the first seed)
         for d in lst:
             # number of subplots - increases in steps of 5 subplots
