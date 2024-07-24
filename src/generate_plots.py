@@ -491,10 +491,11 @@ def generate_plots(params):
 
         # plot state space coverage per iteration (ONLY for the first seed)
         for d in lst:
-            # subplots to display the first 10 iterations
-            sp_fig, sp_ax = plt.subplots(2,5, figsize=(20, 8))
+            # number of subplots - increases in steps of 5 subplots
+            n_subplots = len(iterations_printed) - len(iterations_printed)%5
+            sp_fig, sp_ax = plt.subplots(int(n_subplots/5),5, figsize=(20, int(4*n_subplots/5)))
             n_sample = d['n_sample']
-            for i in range(0,10):
+            for i in range(0,n_subplots):
                 # Reshape the list to an 8x8 numpy array
                 visited_array = np.array(d['state_visitation_counts_iteration'][iterations_printed[i]]).reshape((8, 8))
                 # Determine the position of the subplot
