@@ -64,22 +64,23 @@ class Performative_Prediction():
             #self.d_last = d_first
 
             ## initialize first r and t from trajectories
-            #env.occupancy_iid = False
-            #self.R, self.T = env._get_RT()
-            #env.occupancy_iid = True
-            ## initial state action distribution
-            #d_first = env._get_d(self.T, self.agents[1])
-            #self.d_last = d_first
+            ## so that initial occupancy measure takes into account the initial policy
+            env.occupancy_iid = False
+            self.R, self.T = env._get_RT()
+            env.occupancy_iid = True
+            # initial state action distribution
+            d_first = env._get_d(self.T, self.agents[1])
+            self.d_last = d_first
 
             ## set initial occupancy measure as uniform over initial states and the respective actions
-            d_first = np.zeros((env.dim, len(self.agents[1].actions)))
-            for i in range(d_first.shape[0]):
-                if i < env.grid.shape[0] or i % env.grid.shape[0] == 0:
-                    d_first[i,:] = (1/len(env.initial_states))/d_first.shape[1]
-            self.d_last = d_first
-            # update the d_last in the gridworld file
-            env._get_d_last(self.d_last)
-            self.R, self.T = env._get_RT()
+            #d_first = np.zeros((env.dim, len(self.agents[1].actions)))
+            #for i in range(d_first.shape[0]):
+            #    if i < env.grid.shape[0] or i % env.grid.shape[0] == 0:
+            #        d_first[i,:] = (1/len(env.initial_states))/d_first.shape[1]
+            #self.d_last = d_first
+            ## update the d_last in the gridworld file
+            #env._get_d_last(self.d_last)
+            #self.R, self.T = env._get_RT()
         else:
             self.R, self.T = env._get_RT()
             # initial state action distribution
