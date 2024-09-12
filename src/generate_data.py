@@ -143,7 +143,7 @@ def generate_data(params):
 
     return
 
-def execute_performative_prediction(config, eps, num_followers, max_iterations, gradient, sampling, iid, occupancy_iid, policy_gradient, unregularized_obj, lagrangian, N, delta, B, seed=1):
+def execute_performative_prediction(config, eps, num_followers, max_iterations, gradient, sampling, occupancy_iid, policy_gradient, unregularized_obj, lagrangian, N, delta, B, seed=1):
     """
     """
     beta = config['beta']

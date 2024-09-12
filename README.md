@@ -1,6 +1,6 @@
 # Reproducibility study on Performative Reinforcement Learning
 
-This repository contains code to reproduce and extend the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
+This repository contains code to reproduce and extend the results of the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
 
 The original repository is available here: [https://github.com/gradanovic/icml2023-performative-rl-paper-code](https://github.com/gradanovic/icml2023-performative-rl-paper-code).
 
@@ -13,11 +13,11 @@ This repository extends the original repository by the following features:
 python run_experiment.py --sampling --occupancy_iid
 ```
 
-- additional plots show the state space coverage
+- additional plots show the state space coverage (Specify the iterations printed according to the *run_experiment.py* file. By default the first 10 iterations will be printed.)
 
 - additional plots show the trajectory length
 
-- additional files provide the transition probabilities for the main agent and the follower agents. These files are only generate for the last iteration.
+- additional files provide the transition probabilities for the main agent and the follower agents. These files are only generated for the last iteration.
 
 ### Structure of the repository
 
