@@ -3,6 +3,7 @@
 
 # Ignore data directory
 /data/*.json
+/data/*.txt
 
 # Ignore figures directory
 /figures/betas/*
