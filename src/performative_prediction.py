@@ -51,17 +51,9 @@ class Performative_Prediction():
 
         if self.occupancy_iid:
             """
-            When sampling from the occupancy measure we we have to come up with an initial occupancy measure
-            because get_RT itself depends on an occupancy measure in that case
-
-            Alternatively we can initialize the transition probs as 0 or obtain them from trajectories
+            When sampling from the occupancy measure we have to come up with an initial occupancy measure
+            because get_RT depends on an occupancy measure
             """
-            ## initialize r and t as zeros
-            #self.T = np.zeros(shape=(env.dim, len(env.agents[1].actions), env.dim), dtype='float64')
-            #self.R = np.zeros(shape=(env.dim, len(env.agents[1].actions)), dtype='float64')
-            ## initial state action distribution
-            #d_first = env._get_d(self.T, self.agents[1])
-            #self.d_last = d_first
 
             ## initialize first r and t from trajectories
             ## so that initial occupancy measure takes into account the initial policy
@@ -72,15 +64,6 @@ class Performative_Prediction():
             d_first = env._get_d(self.T, self.agents[1])
             self.d_last = d_first
 
-            ## set initial occupancy measure as uniform over initial states and the respective actions
-            #d_first = np.zeros((env.dim, len(self.agents[1].actions)))
-            #for i in range(d_first.shape[0]):
-            #    if i < env.grid.shape[0] or i % env.grid.shape[0] == 0:
-            #        d_first[i,:] = (1/len(env.initial_states))/d_first.shape[1]
-            #self.d_last = d_first
-            ## update the d_last in the gridworld file
-            #env._get_d_last(self.d_last)
-            #self.R, self.T = env._get_RT()
         else:
             self.R, self.T = env._get_RT()
             # initial state action distribution
@@ -89,10 +72,27 @@ class Performative_Prediction():
         # initial policy array (needed for policy gradient)
         pi_first = env._get_policy_array(self.agents[1])
         self.pi_last = pi_first
-        for _ in range(self.max_iterations):
+        for i in range(self.max_iterations):
             # retrain policies
             self.retrain1()
             self.retrain2()
+            if i == (self.max_iterations - 1):
+
+                num_states = env.dim
+
+                # initialize empty array to save transition probabilities
+                probabilities_agent1 = np.zeros((num_states, len(env.agents[1].policy._get_probs(0))))
+                # get probs for every state
+                for state in range(num_states):
+                    probabilities_agent1[state] = env.agents[1].policy._get_probs(state)
+
+                # same for follower agents
+                probabilities_agent2 = np.zeros((num_states, len(env.agents[2].policy._get_probs(0))))
+                for state in range(num_states):
+                    probabilities_agent2[state] = env.agents[2].policy._get_probs(state)
+
+                np.savetxt(f'data/policyagent1_output_n_sample={self.n_sample}_occupancy_iid={self.occupancy_iid}_max_iter={self.max_iterations}_nfollower={env.num_followers}.txt', probabilities_agent1, fmt='%.2f')
+                np.savetxt(f'data/policyagent2_output_n_sample={self.n_sample}_occupancy_iid={self.occupancy_iid}_max_iter={self.max_iterations}_nfollower={env.num_followers}.txt', probabilities_agent2, fmt='%.2f')
             # update rewards and transition functions
             self.R, self.T = env._get_RT()
 
