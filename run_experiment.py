@@ -33,7 +33,7 @@ from src.generate_plots import generate_plots
 # iterations
 @click.option('--max_iterations', default=1000, type=int, help='Number of Iterations')
 # iterations considered when printing the state space coverage
-@click.option('--iterations_printed', multiple=True, default=np.arange(0,27).tolist(), type=int, help='List of iterations that are printed. "length(list) - length(list)%5" iterations are printed.')
+@click.option('--iterations_printed', multiple=True, default=[0,1,2,3,4,5,6,7,8,9], type=int, help='List of iterations that are printed. "length(list) - length(list)%5" iterations are printed.')
 # n_jobs
 @click.option('--n_jobs', default=multiprocessing.cpu_count(), type=int, help='Number of jobs')
 # policy gradient
