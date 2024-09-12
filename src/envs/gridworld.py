@@ -10,7 +10,7 @@ from src.policies.policies import *
 
 class Gridworld():
 
-    def __init__(self, beta, eps, gamma, num_followers, sampling=False, iid=False, occupancy_iid=False, n_sample=500, seed=1, max_sample_steps=100):
+    def __init__(self, beta, eps, gamma, num_followers, sampling=False, occupancy_iid=False, n_sample=500, seed=1, max_sample_steps=100):
 
         # grid
         h = -0.5
@@ -68,7 +68,6 @@ class Gridworld():
         self.beta = beta
         # sampling
         self.sampling = sampling
-        self.iid = iid
         self.occupancy_iid = occupancy_iid
         self.n_sample = n_sample
         self.max_sample_steps = max_sample_steps
@@ -335,11 +334,8 @@ class Gridworld():
         state_visitation_counts = np.zeros(self.dim, dtype='int')
         # compute empirical data
         for _ in range(n_sample):
-            if self.iid or self.occupancy_iid:
-                if self.iid:
-                    (s, a, s_pr, r) = self.sample_iid()
-                else:
-                    (s, a, s_pr, r) = self.sample_occupancy()
+            if self.occupancy_iid:
+                (s, a, s_pr, r) = self.sample_occupancy()
                 # update visitation count
                 V[s, a] += 1
                 # update total values
@@ -542,32 +538,6 @@ class Gridworld():
         self.state_space_coverage_trajectory.append(np.sum(visited_states)/self.dim)
 
         return trajectory
-
-    def sample_iid(self):
-        """
-        sample uniformly from the state space except for final state
-        """
-        agent = self.agents[1]
-        fixed_agent = self.agents[2]
-        rng = self.rng
-
-        rho = np.zeros(self.dim, dtype='float64')
-        for s in range(rho.shape[0]-1):
-            rho[s] = 1 / (rho.shape[0]-1)
-        
-        # initial state (uniform over all possible states except the terminal state)
-        s = rng.choice(np.arange(self.dim), p=rho)
-        # actions
-        actions = {}
-        actions[agent.id] = agent.take_action(s, rng)
-        actions[fixed_agent.id] = fixed_agent.take_action(s, rng)
-        a = actions[agent.id]
-        # next state
-        s_pr = self.get_mnext_state(s, actions)
-        # rewards
-        r = self.get_mrewards(s, actions, s_pr)
-
-        return (s, a, s_pr, r[agent.id])
 
     def sample_occupancy(self):
         """

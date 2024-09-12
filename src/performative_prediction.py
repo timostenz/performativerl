@@ -7,7 +7,7 @@ from src.policies.policies import *
 
 class Performative_Prediction():
 
-    def __init__(self, env: Gridworld, max_iterations, lamda, reg, gradient, eta, sampling, iid, occupancy_iid, n_sample, policy_gradient, nu, unregularized_obj, lagrangian, N, delta, B):
+    def __init__(self, env: Gridworld, max_iterations, lamda, reg, gradient, eta, sampling, occupancy_iid, n_sample, policy_gradient, nu, unregularized_obj, lagrangian, N, delta, B):
         
         self.env = env
         self.max_iterations = max_iterations
@@ -16,7 +16,6 @@ class Performative_Prediction():
         self.gradient = gradient
         self.eta = eta
         self.sampling = sampling
-        self.iid = iid
         self.occupancy_iid = occupancy_iid
         self.n_sample = n_sample
         self.policy_gradient = policy_gradient
