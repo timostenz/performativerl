@@ -1,43 +1,36 @@
 # Reproducibility study on Performative Reinforcement Learning
 
-This repository contains the code which extends the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
+This repository contains code to reproduce and extend the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
 
-Find the original repository using the following link: [https://github.com/gradanovic/icml2023-performative-rl-paper-code](https://github.com/gradanovic/icml2023-performative-rl-paper-code).
+The original repository is available here: [https://github.com/gradanovic/icml2023-performative-rl-paper-code](https://github.com/gradanovic/icml2023-performative-rl-paper-code).
 
-This repository extends the existing code by the following features:
+### Overview
+
+This repository extends the original repository by the following features:
+
+- feature which estimates the rewards and transition probabilities using samples from the ocupancy measure at each iteration. (no trajectories)
+```
+python run_experiment.py --sampling --occupancy_iid
+```
 
 - additional plots show the state space coverage
 
 - additional plots show the trajectory length
 
-- feature which estimates the rewards and transition probabilities using uniform sampling over the state space. (no trajectories)
-```
-python run_experiment.py --sampling --iid
-```
+- additional files provide the transition probabilities for the main agent and the follower agents. These files are only generate for the last iteration.
 
-- feature which estimates the rewards and transition probabilities using samples from the ocupancy measure each iteration. (no trajectories)
-```
-python run_experiment.py --sampling --occupancy_iid
-```
+### Structure of the repository
 
-# Performative Reinforcement Learning [ICML'23]
-
-This repository contains code for the paper [Performative Reinforcement Learning](https://arxiv.org/abs/2207.00046).
-
-### Overview
-
-The repository is structured as follows:
 - ```src/``` : This folder contains all the source code files required for generating the experiments' data and figures.
 - ```data/``` : This folder is where all the data will be generated.
 - ```figures/``` : This folder is where all the figures will be generated.
 - ```limiting_envs/``` : This folder is for storing visualizations of the environment.
 
-Before running the scripts, please install the following prerequisites. 
-
 ## Prerequisites:
 ```
 Python3
 matplotlib
+seaborn
 numpy
 copy
 itertools
@@ -56,46 +49,36 @@ cmath
 ```
 
 ## Running the code
-To recreate the results of our paper, you will need to run the following scripts. Each of these scripts implements one of the methods described in the paper.
+To replicate the paper exactly as we did please run the with the following specifications.
 
-### Repeated Policy Optimization (Fig. 2.a and 2.b)
+### Repeated Policy Optimization (Fig. 2)
 ```
 python run_experiment.py --fbeta=10
 ```
 
-### Repeated Gradient Ascent (Fig. 2.c and 2.d)
+### Repeated Gradient Ascent (Fig. 3)
 ```
 python run_experiment.py --gradient
 ```
 
-### Repeated Policy Optimization with Finite Samples (Fig. 2.e)
+### Repeated Policy Optimization with Finite Samples (Fig. 4a)
 ```
 python run_experiment.py --sampling
 ```
 
-### Repeated Gradient Ascent with Finite Samples (Fig. 2.f)
-```
-python run_experiment.py --gradient --sampling --etas 1
-```
-
-### Repeated Policy Gradient
-```
-python run_experiment.py --policy_gradient
-```
-
-### Solving Lagrangian
+### Solving Lagrangian (Fig. 4b)
 ```
 python run_experiment.py --sampling --lagrangian
 ```
 
+### Sampling from the occupancy measure (Fig. 5)
+```
+python run_experiment.py --sampling --occupancy_iid
+```
+
 ## Results
 
-After running the above scripts, new plots will be generated in the figures directory.
-
-## Additional Notes
-
-The following are not included in the paper:
-* For the experiment *repeated gradient ascent with finite samples* the corresponding suboptimality gap is also computed
+After running the above scripts, new plots will be generated in the figures directory. The output data and the transition probabilities are generated in the data directory.
 
 ## Contact Details
-For any questions or comments, contact strianta@mpi-sws.org.
+For any questions or comments, contact timo.stenz@student.uni-tuebingen.de or jitendra.saripalli@student.uni-tuebingen.de.
